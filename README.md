@@ -4,13 +4,15 @@ Things You Should Know:
 
 1. Only gcc is supported because only "g++ -fmodules -M" generates the module-compatible Make rules based on [P1602R0](https://wg21.link/p1602r0).
 
-2. Current implementation doen't generate the "perfect" rules. When specify the module prerequisites of an object target x.o, it outputs something like "x.o: y.c++-module z.c++-module", which works but makes x.o always getting rebuilt. This is because *.c++-module targets are not actually files but a tricky workaround.
+2. Current gcc implementation doesn't generate "perfect" rules. When specifying the module prerequisites of an object target x.o, it outputs something like "x.o: y.c++-module z.c++-module", which works but makes x.o always getting rebuilt. This is because *.c++-module targets are not actually files but a tricky workaround.
 
-  However, this could be fixed, if a simple '|' is added to the generated rule - making it "x.o:| y.c++-module z.c++-module". I modified gcc on my local computer and it works great. I'm considering making a patch to gcc, but I'm super noob and I'm not sure. And it seems like they have some plans to use 'grouped targets' from Make 4.3 to do the trick instead.
+  However, this could be fixed, if a simple '|' is added to the generated rule, making it "x.o:| y.c++-module z.c++-module". I modified gcc on my local computer and it works great. I'm considering making a patch to gcc, but I'm super noob and I'm not sure. And it seems like they have some plans to use 'grouped targets' from Make 4.3 to do the trick instead.
 
 3. Header units are bastards. They affect the prepocessor state and thus must be processed with caution. To avoid 'the worst scenario' (it's always those worst scenarios), this demo forces you to queue up the header units in depdendency order. If A.h depends on B.h, you must put B.h before A.h in the HEADER_UNITS variable. And the rest is taken care of. Could be improved, though.
 
 4. There should be some script to automatically set CXX_STDMODULE. I didn't write one, though.
+
+5. There is a problem with module partitions. CMIs of module partitions have ':'s in their names, which is not handled correctly by gcc during generation. Another gcc patch could easily fix it. I'm considering commiting a patch and I will let you know.
 
 Other Words:
 
