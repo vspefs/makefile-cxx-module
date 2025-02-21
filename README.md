@@ -12,7 +12,7 @@ Things You Should Know:
 
 4. There should be some script to automatically set CXX_STDMODULE. I didn't write one, though.
 
-5. There is a problem with module partitions. CMIs of module partitions have ':'s in their names, which is not handled correctly by gcc during generation. Another gcc patch could easily fix it. I'm considering commiting a patch and I will let you know.
+5. There is a problem with module partitions. CMIs of module partitions have ':'s in their names, which is not handled correctly by gcc during generation. Another gcc patch could easily fix it. I'm considering commiting a patch and I will let you know. Update: For God's sake, there are some other problems with module partitions. I'll try to fix it.
 
 Other Words:
 
