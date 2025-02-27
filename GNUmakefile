@@ -17,7 +17,7 @@ CXX := g++
 ALL_CXXFLAGS := -std=c++26 -fmodules $(CXXFLAGS)
 
 CXX_STDMODULE := /usr/include/c++/15.0.1/bits/std.cc
-SRCS := a.cc b.cc c.cc
+SRCS := a.cc b.cc c.cc ba.cc
 HEADER_UNITS := inc/a.h e.hh d.hh
 
 all: exe
@@ -26,11 +26,8 @@ OBJS := $(SRCS:.cc=.o)
 DEPS := $(SRCS:.cc=.d)
 
 HEADER_UNIT_CMIS := $(foreach unit,$(HEADER_UNITS),gcm.cache/,/$(unit).gcm)
-HEADER_UNIT_MODULE_TARGETS := $(patsubst %,%.c++-module,$(HEADER_UNITS))
 $(HEADER_UNIT_CMIS): gcm.cache/,/%.gcm: %
 	$(CXX) -c $(CPPFLAGS) $(ALL_CXXFLAGS) $<
-$(HEADER_UNIT_MODULE_TARGETS): %.c++-module: gcm.cache/,/%.gcm ;
-.PHONY: $(HEADER_UNIT_MODULE_TARGETS)
 $(foreach i, $(shell seq 2 $(words $(HEADER_UNIT_CMIS))), \
     $(eval $(word $(i), $(HEADER_UNIT_CMIS)): $(word $(shell expr $(i) - 1), $(HEADER_UNIT_CMIS))) \
 )
@@ -39,8 +36,7 @@ $(DEPS): $(HEADER_UNIT_CMIS)
 OBJS += std.o
 std.o: $(CXX_STDMODULE)
 	$(CXX) -c $(CPPFLAGS) $(ALL_CXXFLAGS) $^ -o $@
-std.c++-module: std.o
-.PHONY: std.c++-module
+gcm.cache/std.gcm: std.o ;
 
 exe: $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LOADLIBS) $(LDLIBS) -o $@
@@ -50,7 +46,9 @@ clean:
 	$(RM) -r gcm.cache
 .PHONY: all clean
 
-include $(DEPS)
+ifneq ($(filter clean,$(MAKECMDGOALS)),clean)
+-include $(DEPS)
+endif
 
 %.d: %.cc
 	@set -e; rm -f $@; \
@@ -60,3 +58,6 @@ include $(DEPS)
 
 %.o: %.cc
 	$(CXX) -c $(CPPFLAGS) $(ALL_CXXFLAGS) $<
+
+%.gcm:
+	$(CXX) -c -fmodule-only $(CPPFLAGS) $(ALL_CXXFLAGS) $<

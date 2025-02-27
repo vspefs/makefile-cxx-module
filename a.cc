@@ -1,6 +1,5 @@
 import std;
 import b;
-import c;
 import "d.hh";
 
 int

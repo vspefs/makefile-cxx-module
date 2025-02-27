@@ -1,6 +1,7 @@
 export module b;
 
+export import : a;
+export import c;
 import std;
-import "inc/a.h";
 
-export std::string_view message = B_MESSAGE;
+export std::string_view message = { b_message_string };
